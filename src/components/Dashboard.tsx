@@ -62,35 +62,34 @@ export default function Dashboard() {
   const ultComp = data?.pmgdCompensaciones?.[data.pmgdCompensaciones.length - 1];
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-4">
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50 shadow-sm">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-xs font-bold text-white shadow-lg">
-                SEN
-              </div>
-              <div>
-                <h1 className="text-base font-bold text-white leading-tight">
-                  Sistema Eléctrico Nacional — Chile
+            <div className="flex items-center gap-4">
+              {/* Logo Coordinador Eléctrico Nacional */}
+              <img src="/logo-cen.svg" alt="Coordinador Eléctrico Nacional" className="h-10 w-auto" />
+              <div className="border-l border-gray-200 pl-4">
+                <h1 className="text-base font-bold text-gray-900 leading-tight">
+                  Datos del Sistema Eléctrico Nacional
                 </h1>
-                <p className="text-xs text-slate-500">
-                  Datos: Coordinador Eléctrico Nacional (coordinador.cl) · Actualización mensual automática
+                <p className="text-xs text-gray-500">
+                  Fuente: coordinador.cl · Actualización mensual automática
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               {data?.ultimaActualizacion && (
-                <div className="text-xs text-slate-500 hidden sm:block">
-                  {fromCache ? '📦 Caché · ' : '🔄 Actualizado · '}
+                <div className="text-xs text-gray-400 hidden sm:block">
+                  {fromCache ? 'Caché · ' : 'Actualizado · '}
                   {new Date(data.ultimaActualizacion).toLocaleDateString('es-CL', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}
                 </div>
               )}
               <button
                 onClick={() => fetchData(true)}
                 disabled={refreshing}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 text-xs text-gray-600 transition-colors disabled:opacity-50 cursor-pointer"
               >
                 <span className={refreshing ? 'animate-spin inline-block' : ''}>↻</span>
                 {refreshing ? 'Actualizando...' : 'Actualizar'}
@@ -109,9 +108,9 @@ export default function Dashboard() {
         )}
 
         {loading && !data ? <Skeleton/> : error ? (
-          <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-8 text-center">
-            <div className="text-rose-400 text-lg mb-2">Error al cargar datos</div>
-            <div className="text-slate-400 text-sm mb-4">{error}</div>
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-8 text-center">
+            <div className="text-rose-600 text-lg mb-2">Error al cargar datos</div>
+            <div className="text-gray-500 text-sm mb-4">{error}</div>
             <button onClick={()=>fetchData()} className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-sm transition-colors">Reintentar</button>
           </div>
         ) : data ? (
@@ -125,11 +124,11 @@ export default function Dashboard() {
             </div>
 
             {/* Tabs */}
-            <div className="border-b border-slate-800">
+            <div className="border-b border-gray-200">
               <nav className="flex gap-1 overflow-x-auto">
                 {TABS.map(tab=>(
                   <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors cursor-pointer ${activeTab===tab.id ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-600'}`}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors cursor-pointer ${activeTab===tab.id ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                   >
                     <span>{tab.emoji}</span><span>{tab.label}</span>
                   </button>
@@ -146,9 +145,9 @@ export default function Dashboard() {
             </div>
 
             {/* Footer */}
-            <footer className="border-t border-slate-800 pt-6 pb-4">
-              <div className="text-xs text-slate-600 space-y-1">
-                <div className="font-medium text-slate-500 mb-2">Fuentes de datos</div>
+            <footer className="border-t border-gray-200 pt-6 pb-4">
+              <div className="text-xs text-gray-400 space-y-1">
+                <div className="font-medium text-gray-500 mb-2">Fuentes de datos</div>
                 <div>• Coordinador Eléctrico Nacional: coordinador.cl — Reportes PMGD, Balances SSCC, Potencia de Suficiencia</div>
                 <div>• Energía Abierta: datos.energiaabierta.cl — Generación por tecnología</div>
                 <div>• Actualización automática el día 5 de cada mes a las 06:00 UTC vía Vercel Cron</div>

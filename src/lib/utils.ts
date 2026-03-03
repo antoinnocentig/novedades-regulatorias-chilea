@@ -26,15 +26,15 @@ export function formatPorcentaje(value: number): string {
 }
 
 export const COLORES_TECNOLOGIA: Record<string, string> = {
-  solar: '#FBBF24',
-  eolica: '#60A5FA',
-  hidro: '#34D399',
-  termicaGas: '#F97316',
-  termicaCarbon: '#6B7280',
-  termicaPetroleo: '#9CA3AF',
-  geotermica: '#EC4899',
-  biogas: '#A78BFA',
-  otros: '#D1D5DB',
+  solar:           '#F59E0B', // amarillo solar
+  eolica:          '#22C55E', // verde eólico
+  hidro:           '#3B82F6', // azul hidráulico
+  termicaGas:      '#92400E', // café / marrón gas
+  termicaCarbon:   '#1C1917', // negro carbón
+  termicaPetroleo: '#9CA3AF', // gris petróleo
+  geotermica:      '#EC4899', // rosa geotérmica
+  biogas:          '#A78BFA', // violeta biogás
+  otros:           '#CBD5E1', // gris claro otros
 };
 
 export const NOMBRES_TECNOLOGIA: Record<string, string> = {

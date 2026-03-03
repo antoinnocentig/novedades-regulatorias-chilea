@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" fill="none">
+  <!-- Ícono rayo / lightning bolt -->
+  <polygon points="22,4 10,32 20,32 14,56 34,22 23,22 33,4" fill="#0057A8"/>
+  <!-- Línea separadora -->
+  <line x1="44" y1="8" x2="44" y2="52" stroke="#0057A8" stroke-width="1.5"/>
+  <!-- Texto principal -->
+  <text x="52" y="24" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#0057A8" letter-spacing="0.3">COORDINADOR</text>
+  <text x="52" y="40" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="#0057A8" letter-spacing="0.3">ELÉCTRICO</text>
+  <text x="52" y="54" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="400" fill="#4A90D9" letter-spacing="0.5">NACIONAL</text>
+</svg>
