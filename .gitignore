@@ -1,4 +1,25 @@
-cd /home/user/cen-dashboard
-git init && git add . && git commit -m "CEN Dashboard"
-git remote add origin https://github.com/TU_USUARIO/cen-dashboard.git
-git push -u origin mai
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+*.pem
