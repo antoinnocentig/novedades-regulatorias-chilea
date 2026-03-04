@@ -4,19 +4,27 @@ import { useState, useEffect, useCallback } from 'react';
 import PMGDSection from './sections/PMGDSection';
 import SSCCSection from './sections/SSCCSection';
 import GeneracionSection from './sections/GeneracionSection';
-import PotenciaSection from './sections/PotenciaSection';
+import CapacidadSection from './sections/CapacidadSection';
+import AlmacenamientoSection from './sections/AlmacenamientoSection';
+import DemandaSection from './sections/DemandaSection';
+import PagosClientesSection from './sections/PagosClientesSection';
+import TransferenciasSection from './sections/TransferenciasSection';
 import KPICard from './ui/KPICard';
 import StatusBadge from './ui/StatusBadge';
-import { formatCLP, formatGWh, formatMW } from '@/lib/utils';
+import { formatGWh, formatMW } from '@/lib/utils';
 import type { DashboardData } from '@/lib/types';
 
-type TabId = 'pmgd' | 'sscc' | 'generacion' | 'potencia';
+type TabId = 'capacidad' | 'almacenamiento' | 'generacion' | 'demanda' | 'pagosClientes' | 'transferencias' | 'pmgd' | 'sscc';
 
 const TABS: { id: TabId; label: string; emoji: string }[] = [
-  { id: 'pmgd',       label: 'PMGD',                    emoji: '⚡' },
-  { id: 'sscc',       label: 'Servicios Complementarios', emoji: '🔧' },
-  { id: 'generacion', label: 'Generación',               emoji: '📊' },
-  { id: 'potencia',   label: 'Potencia',                 emoji: '💡' },
+  { id: 'capacidad',      label: 'Capacidad Instalada',       emoji: '🏭' },
+  { id: 'almacenamiento', label: 'Almacenamiento',            emoji: '🔋' },
+  { id: 'generacion',     label: 'Generación',                emoji: '📊' },
+  { id: 'demanda',        label: 'Demanda',                   emoji: '📈' },
+  { id: 'pagosClientes',  label: 'Pagos Clientes',            emoji: '💸' },
+  { id: 'transferencias', label: 'Transferencias Económicas', emoji: '💱' },
+  { id: 'pmgd',           label: 'PMGD',                      emoji: '⚡' },
+  { id: 'sscc',           label: 'Serv. Complementarios',     emoji: '🔧' },
 ];
 
 function Skeleton() {
@@ -33,7 +41,7 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>('pmgd');
+  const [activeTab, setActiveTab] = useState<TabId>('capacidad');
   const [refreshing, setRefreshing] = useState(false);
   const [fromCache, setFromCache] = useState(false);
 
@@ -58,8 +66,8 @@ export default function Dashboard() {
   useEffect(() => { fetchData(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const ult = data?.generacion?.[data.generacion.length - 1];
-  const ultSSCC = data?.ssccPagos?.[data.ssccPagos.length - 1];
-  const ultComp = data?.pmgdCompensaciones?.[data.pmgdCompensaciones.length - 1];
+  const ultDem = data?.demanda?.[data.demanda.length - 1];
+  const ultAlm = data?.almacenamientoEvolucion?.[data.almacenamientoEvolucion.length - 1];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -117,10 +125,10 @@ export default function Dashboard() {
           <>
             {/* KPIs */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <KPICard titulo="Capacidad Instalada PMGD" valor={formatMW(data.pmgdCapacidad.totalMW)} subtitulo={`${data.pmgdCapacidad.cantidadProyectos.toLocaleString('es-CL')} proyectos`} icono={<span>⚡</span>} color="azul"/>
-              <KPICard titulo="Costo Sistémico PMGD" valor={ultComp?formatCLP(ultComp.costoSistemicoCLP):'-'} subtitulo={ultComp?`${ultComp.mes} ${ultComp.anio}`:''} icono={<span>💰</span>} color="violeta"/>
-              <KPICard titulo="Pagos SSCC Mensual" valor={ultSSCC?formatCLP(ultSSCC.totalCLP):'-'} subtitulo={ultSSCC?`${ultSSCC.mes} ${ultSSCC.anio}`:''} icono={<span>🔧</span>} color="amarillo"/>
-              <KPICard titulo="Generación Total Mensual" valor={ult?formatGWh(ult.totalGWh):'-'} subtitulo={ult?`${ult.mes} ${ult.anio}`:''} icono={<span>📊</span>} color="verde"/>
+              <KPICard titulo="Capacidad Instalada SEN" valor={data.capacidadTecnologia?formatMW(data.capacidadTecnologia.totalMW):'-'} subtitulo={data.capacidadTecnologia?`${data.capacidadTecnologia.mes} ${data.capacidadTecnologia.anio}`:''} icono={<span>🏭</span>} color="azul"/>
+              <KPICard titulo="Almacenamiento BESS" valor={ultAlm?formatMW(ultAlm.totalMW):'-'} subtitulo={ultAlm?`${ultAlm.proyectosOperativos} proyectos · ${ultAlm.mes} ${ultAlm.anio}`:''} icono={<span>🔋</span>} color="violeta"/>
+              <KPICard titulo="Generación Mensual SEN" valor={ult?formatGWh(ult.totalGWh):'-'} subtitulo={ult?`ERNC ${ult.participacionERNC.toFixed(1)}% · ${ult.mes} ${ult.anio}`:''} icono={<span>📊</span>} color="verde"/>
+              <KPICard titulo="Demanda Mensual SEN" valor={ultDem?formatGWh(ultDem.totalGWh):'-'} subtitulo={ultDem?`${ultDem.mes} ${ultDem.anio}`:''} icono={<span>📈</span>} color="amarillo"/>
             </div>
 
             {/* Tabs */}
@@ -138,20 +146,24 @@ export default function Dashboard() {
 
             {/* Contenido */}
             <div>
-              {activeTab === 'pmgd'       && <PMGDSection capacidad={data.pmgdCapacidad} compensaciones={data.pmgdCompensaciones} estabilizacion={data.pmgdEstabilizacion}/>}
-              {activeTab === 'sscc'       && <SSCCSection pagos={data.ssccPagos} unidades={data.ssccUnidades}/>}
-              {activeTab === 'generacion' && <GeneracionSection generacion={data.generacion}/>}
-              {activeTab === 'potencia'   && <PotenciaSection potencia={data.potencia}/>}
+              {activeTab === 'capacidad'      && <CapacidadSection tecnologia={data.capacidadTecnologia} regiones={data.capacidadRegion}/>}
+              {activeTab === 'almacenamiento' && <AlmacenamientoSection regiones={data.almacenamientoRegion} evolucion={data.almacenamientoEvolucion}/>}
+              {activeTab === 'generacion'     && <GeneracionSection generacion={data.generacion}/>}
+              {activeTab === 'demanda'        && <DemandaSection demanda={data.demanda}/>}
+              {activeTab === 'pagosClientes'  && <PagosClientesSection datos={data.pagosClientes}/>}
+              {activeTab === 'transferencias' && <TransferenciasSection transferencias={data.transferenciasEconomicas} ssccPagos={data.ssccPagos} ssccUnidades={data.ssccUnidades} potencia={data.potencia}/>}
+              {activeTab === 'pmgd'           && <PMGDSection capacidad={data.pmgdCapacidad} compensaciones={data.pmgdCompensaciones} estabilizacion={data.pmgdEstabilizacion}/>}
+              {activeTab === 'sscc'           && <SSCCSection pagos={data.ssccPagos} unidades={data.ssccUnidades}/>}
             </div>
 
             {/* Footer */}
             <footer className="border-t border-gray-200 pt-6 pb-4">
               <div className="text-xs text-gray-400 space-y-1">
                 <div className="font-medium text-gray-500 mb-2">Fuentes de datos</div>
-                <div>• Coordinador Eléctrico Nacional: coordinador.cl — Reportes PMGD, Balances SSCC, Potencia de Suficiencia</div>
-                <div>• Energía Abierta: datos.energiaabierta.cl — Generación por tecnología</div>
+                <div>• Comisión Nacional de Energía: cne.cl — Reporte Mensual Sector Energético (Capacidad, BESS, Generación, Demanda, Pagos Clientes)</div>
+                <div>• Coordinador Eléctrico Nacional: coordinador.cl — Gráficos del SEN, Reportes PMGD, Balances SSCC</div>
+                <div>• PLABACOM: plabacom.coordinador.cl — Transferencias económicas, compensaciones precio estabilizado, pagos potencia y SSCC</div>
                 <div>• Actualización automática el día 5 de cada mes a las 06:00 UTC vía Vercel Cron</div>
-                <div>• Balances definitivos SSCC y Potencia disponibles en PLABACOM para usuarios registrados del CEN</div>
               </div>
             </footer>
           </>

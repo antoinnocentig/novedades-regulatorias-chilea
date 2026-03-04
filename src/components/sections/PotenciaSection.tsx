@@ -5,7 +5,7 @@ import SectionCard from '@/components/ui/SectionCard';
 import { formatCLP, formatPorcentaje, COLORES_TECNOLOGIA, NOMBRES_TECNOLOGIA } from '@/lib/utils';
 import type { PotenciaTecnologia } from '@/lib/types';
 
-const TECHS = ['hidro','termicaGas','solar','termicaCarbon','eolica','termicaPetroleo','geotermica','otros'] as const;
+const TECHS = ['hidro','termicaGas','solar','termicaCarbon','eolica','termicaDiesel','geotermica','bess','otros'] as const;
 
 const TT = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;

@@ -5,7 +5,7 @@ import SectionCard from '@/components/ui/SectionCard';
 import { formatGWh, formatPorcentaje, COLORES_TECNOLOGIA, NOMBRES_TECNOLOGIA } from '@/lib/utils';
 import type { GeneracionTecnologia } from '@/lib/types';
 
-const TECHS = ['solar','eolica','hidro','termicaGas','termicaCarbon','termicaPetroleo','geotermica','biogas','otros'] as const;
+const TECHS = ['solar','eolica','hidroEmbalse','hidroPasada','miniHidro','termicaGas','termicaCarbon','termicaDiesel','geotermica','biomasa','bess','otros'] as const;
 
 const TT = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -28,8 +28,8 @@ const TT = ({ active, payload, label }: any) => {
 
 export default function GeneracionSection({ generacion }: { generacion: GeneracionTecnologia[] }) {
   const ult = generacion[generacion.length - 1];
-  const erncTotal = ult ? ult.porTecnologia.solar+ult.porTecnologia.eolica+ult.porTecnologia.hidro+ult.porTecnologia.geotermica+ult.porTecnologia.biogas : 0;
-  const pctERNC = ult ? erncTotal/ult.totalGWh*100 : 0;
+  const pctERNC = ult ? ult.participacionERNC : 0;
+  const erncTotal = ult ? ult.totalGWh * pctERNC / 100 : 0;
   const convTotal = ult ? ult.totalGWh - erncTotal : 0;
 
   const pieData = ult ? TECHS.filter(t=>ult.porTecnologia[t]>0).map(t=>({ name:NOMBRES_TECNOLOGIA[t], value:ult.porTecnologia[t], color:COLORES_TECNOLOGIA[t] })) : [];
