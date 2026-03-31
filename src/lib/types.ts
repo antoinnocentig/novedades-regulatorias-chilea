@@ -228,6 +228,52 @@ export interface TransferenciasEconomicas {
   fuente: string;
 }
 
+// ── INFOTECNICA — CENTRALES / BARRAS / LÍNEAS ─────────────────
+export type SegmentoIT = 'PMGD' | 'PMG' | 'Ninguno';
+
+export interface InfotecnicaCapacidadFila {
+  tecnologia: string;          // 'solar' | 'eolica' | 'hidro' | etc.
+  nombreTecnologia: string;
+  pmgd: number;                // MW en PMGD
+  pmg: number;                 // MW en PMG
+  ninguno: number;             // MW en resto del SEN
+  total: number;
+}
+
+export interface InfotecnicaGeneracionFila {
+  tecnologia: string;
+  nombreTecnologia: string;
+  pmgd: number;                // GWh anual 2024
+  pmg: number;
+  ninguno: number;
+  total: number;
+}
+
+export interface InfotecnicaBarrasStats {
+  tension: string;             // '500 kV' | '220 kV' | etc.
+  cantidad: number;
+}
+
+export interface InfotecnicaLineasStats {
+  tension: string;
+  cantidad: number;
+  kmTotales: number;
+}
+
+export interface InfotecnicaStats {
+  totalCentrales: number;
+  totalBarras: number;
+  totalLineas: number;
+  totalUG: number;
+  totalUGPMGD: number;
+  capacidadPorSegmento: InfotecnicaCapacidadFila[];
+  generacionPorSegmento: InfotecnicaGeneracionFila[];
+  barrasPorTension: InfotecnicaBarrasStats[];
+  lineasPorTension: InfotecnicaLineasStats[];
+  fechaDato: string;
+  fuente: string;
+}
+
 // ── DASHBOARD PRINCIPAL ────────────────────────────────────────
 export interface DashboardData {
   pmgdCapacidad: PMGDCapacidad;
@@ -244,6 +290,7 @@ export interface DashboardData {
   ssccUnidades: SSCCUnidad[];
   potencia: PotenciaTecnologia[];
   transferenciasEconomicas: TransferenciasEconomicas[];
+  infotecnica: InfotecnicaStats;
   ultimaActualizacion: string;
   estadoFuentes: EstadoFuente[];
 }

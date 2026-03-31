@@ -14,6 +14,7 @@ import { scrapeAlmacenamiento } from '@/lib/scrapers/almacenamiento';
 import { scrapeDemanda } from '@/lib/scrapers/demanda';
 import { scrapePagosClientes } from '@/lib/scrapers/pagosClientes';
 import { scrapePlabacom } from '@/lib/scrapers/plabacom';
+import { scrapeInfotecnica } from '@/lib/scrapers/infotecnica';
 import type { DashboardData } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -29,10 +30,10 @@ export async function GET(request: NextRequest) {
 
   const t0 = Date.now();
   await invalidateCache();
-  const [pmgd, sscc, gen, pot, cap, alm, dem, pagos, plabacom] = await Promise.all([
+  const [pmgd, sscc, gen, pot, cap, alm, dem, pagos, plabacom, infotecnica] = await Promise.all([
     scrapePMGD(), scrapeSSCC(), scrapeGeneracion(), scrapePotencia(),
     scrapeCapacidad(), scrapeAlmacenamiento(), scrapeDemanda(),
-    scrapePagosClientes(), scrapePlabacom(),
+    scrapePagosClientes(), scrapePlabacom(), scrapeInfotecnica(),
   ]);
 
   const data: DashboardData = {
@@ -50,8 +51,9 @@ export async function GET(request: NextRequest) {
     ssccUnidades: sscc.unidades,
     potencia: pot.datos,
     transferenciasEconomicas: plabacom.datos,
+    infotecnica: infotecnica.stats,
     ultimaActualizacion: new Date().toISOString(),
-    estadoFuentes: [pmgd.estado, sscc.estado, gen.estado, pot.estado, cap.estado, alm.estado, dem.estado, pagos.estado, plabacom.estado],
+    estadoFuentes: [pmgd.estado, sscc.estado, gen.estado, pot.estado, cap.estado, alm.estado, dem.estado, pagos.estado, plabacom.estado, infotecnica.estado],
   };
 
   await setCachedData(data);

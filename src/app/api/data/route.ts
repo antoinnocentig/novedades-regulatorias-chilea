@@ -9,6 +9,7 @@ import { scrapeAlmacenamiento } from '@/lib/scrapers/almacenamiento';
 import { scrapeDemanda } from '@/lib/scrapers/demanda';
 import { scrapePagosClientes } from '@/lib/scrapers/pagosClientes';
 import { scrapePlabacom } from '@/lib/scrapers/plabacom';
+import { scrapeInfotecnica } from '@/lib/scrapers/infotecnica';
 import type { DashboardData } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
       if (cached && isCacheValid(cached)) return NextResponse.json({ ...cached, fromCache: true });
     }
 
-    const [pmgd, sscc, gen, pot, cap, alm, dem, pagos, plabacom] = await Promise.all([
+    const [pmgd, sscc, gen, pot, cap, alm, dem, pagos, plabacom, infotecnica] = await Promise.all([
       scrapePMGD(),
       scrapeSSCC(),
       scrapeGeneracion(),
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
       scrapeDemanda(),
       scrapePagosClientes(),
       scrapePlabacom(),
+      scrapeInfotecnica(),
     ]);
 
     const data: DashboardData = {
@@ -50,6 +52,7 @@ export async function GET(request: NextRequest) {
       ssccUnidades:         sscc.unidades,
       potencia:             pot.datos,
       transferenciasEconomicas: plabacom.datos,
+      infotecnica:              infotecnica.stats,
       ultimaActualizacion:  new Date().toISOString(),
       estadoFuentes: [
         pmgd.estado,
@@ -61,6 +64,7 @@ export async function GET(request: NextRequest) {
         sscc.estado,
         pot.estado,
         plabacom.estado,
+        infotecnica.estado,
       ],
     };
 

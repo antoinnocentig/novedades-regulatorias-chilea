@@ -9,14 +9,16 @@ import AlmacenamientoSection from './sections/AlmacenamientoSection';
 import DemandaSection from './sections/DemandaSection';
 import PagosClientesSection from './sections/PagosClientesSection';
 import TransferenciasSection from './sections/TransferenciasSection';
+import InfotecnicaSection from './sections/InfotecnicaSection';
 import KPICard from './ui/KPICard';
 import StatusBadge from './ui/StatusBadge';
 import { formatGWh, formatMW } from '@/lib/utils';
 import type { DashboardData } from '@/lib/types';
 
-type TabId = 'capacidad' | 'almacenamiento' | 'generacion' | 'demanda' | 'pagosClientes' | 'transferencias' | 'pmgd' | 'sscc';
+type TabId = 'capacidad' | 'almacenamiento' | 'generacion' | 'demanda' | 'pagosClientes' | 'transferencias' | 'pmgd' | 'sscc' | 'infotecnica';
 
 const TABS: { id: TabId; label: string; emoji: string }[] = [
+  { id: 'infotecnica',    label: 'Infotécnica SEN',           emoji: '🗺️' },
   { id: 'capacidad',      label: 'Capacidad Instalada',       emoji: '🏭' },
   { id: 'almacenamiento', label: 'Almacenamiento',            emoji: '🔋' },
   { id: 'generacion',     label: 'Generación',                emoji: '📊' },
@@ -41,7 +43,7 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabId>('capacidad');
+  const [activeTab, setActiveTab] = useState<TabId>('infotecnica');
   const [refreshing, setRefreshing] = useState(false);
   const [fromCache, setFromCache] = useState(false);
 
@@ -146,6 +148,7 @@ export default function Dashboard() {
 
             {/* Contenido */}
             <div>
+              {activeTab === 'infotecnica'    && data.infotecnica && <InfotecnicaSection stats={data.infotecnica}/>}
               {activeTab === 'capacidad'      && <CapacidadSection tecnologia={data.capacidadTecnologia} regiones={data.capacidadRegion}/>}
               {activeTab === 'almacenamiento' && <AlmacenamientoSection regiones={data.almacenamientoRegion} evolucion={data.almacenamientoEvolucion}/>}
               {activeTab === 'generacion'     && <GeneracionSection generacion={data.generacion}/>}
@@ -163,6 +166,7 @@ export default function Dashboard() {
                 <div>• Comisión Nacional de Energía: cne.cl — Reporte Mensual Sector Energético (Capacidad, BESS, Generación, Demanda, Pagos Clientes)</div>
                 <div>• Coordinador Eléctrico Nacional: coordinador.cl — Gráficos del SEN, Reportes PMGD, Balances SSCC</div>
                 <div>• PLABACOM: plabacom.coordinador.cl — Transferencias económicas, compensaciones precio estabilizado, pagos potencia y SSCC</div>
+                <div>• Infotécnica: infotecnica.coordinador.cl — Centrales, barras y líneas del SEN (capacidad y generación por tecnología y segmento PMGD/PMG)</div>
                 <div>• Actualización automática el día 5 de cada mes a las 06:00 UTC vía Vercel Cron</div>
               </div>
             </footer>
