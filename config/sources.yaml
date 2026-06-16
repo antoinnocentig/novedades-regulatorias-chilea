@@ -1,0 +1,154 @@
+# ============================================================================
+#  CATÁLOGO DE FUENTES DE DATOS — Mercado Eléctrico Chileno
+#  Cada visualización de Energía Abierta está respaldada por datasets CKAN.
+#  Energía Abierta corre sobre CKAN: expone una API REST en /api/3/action/.
+#  La estrategia es resiliente a cambios de ID: se descubre por búsqueda de
+#  texto (package_search) y se descargan los recursos CSV del DataStore.
+#
+#  Endpoints CKAN usados:
+#    GET {base}/api/3/action/package_search?q=<texto>
+#    GET {base}/api/3/action/package_show?id=<dataset>
+#    GET {base}/api/3/action/datastore_search?resource_id=<id>&limit=N
+#    GET {base}/api/3/action/datastore_search_sql?sql=<SQL>
+#    GET {base}/dataset/<slug>/resource/<id>/download/<archivo>.csv
+# ============================================================================
+
+ckan:
+  base_url: "http://energiaabierta.cl"
+  # Algunos despliegues CKAN exponen los datos en un subdominio de datos.
+  base_url_alt: "https://datos.energiaabierta.cl"
+  user_agent: "Dashboard-Mercado-Electrico-CL/1.0 (+monitoreo regulatorio)"
+  timeout: 45
+  rows_per_page: 1000
+
+# ---------------------------------------------------------------------------
+#  MÓDULOS — cada uno declara: visualización origen, términos de búsqueda
+#  CKAN, columnas esperadas y una URL de respaldo (reporte oficial).
+# ---------------------------------------------------------------------------
+modulos:
+
+  capacidad_instalada:
+    visualizacion: "http://energiaabierta.cl/visualizaciones/capacidad-instalada/"
+    evolucion: "http://energiaabierta.cl/visualizaciones/evolucion-de-la-capacidad-instalada/"
+    ckan_queries:
+      - "capacidad instalada"
+      - "capacidad instalada tecnologia region"
+      - "potencia instalada SEN"
+    columnas:
+      fecha: ["fecha", "periodo", "mes", "anio", "año"]
+      region: ["region", "región"]
+      tecnologia: ["tecnologia", "tecnología", "tipo"]
+      combustible: ["combustible", "fuente"]
+      empresa: ["empresa", "propietario"]
+      potencia_mw: ["potencia", "potencia_mw", "mw", "capacidad"]
+    respaldo: "https://www.cne.cl/estadisticas/energetica/electricidad/reporte-mensual-del-sector-energetico/"
+
+  generacion:
+    visualizacion: "http://energiaabierta.cl/visualizaciones/generacion-de-energia-electrica/"
+    ckan_queries:
+      - "generacion bruta"
+      - "generacion energia electrica tecnologia"
+      - "generacion mensual SEN"
+    columnas:
+      fecha: ["fecha", "periodo", "mes"]
+      region: ["region", "región"]
+      tecnologia: ["tecnologia", "tecnología", "combustible", "tipo"]
+      empresa: ["empresa"]
+      energia_gwh: ["generacion", "energia", "gwh", "mwh"]
+    respaldo: "https://www.coordinador.cl/operacion/graficos/operacion-real/generacion-real-del-sistema/"
+
+  ernc:
+    visualizacion: "http://energiaabierta.cl/visualizaciones/generacion-bruta-ernc/"
+    ckan_queries:
+      - "ERNC"
+      - "generacion bruta ERNC"
+      - "energias renovables no convencionales"
+    columnas:
+      fecha: ["fecha", "periodo", "mes"]
+      tecnologia: ["tecnologia", "tecnología", "tipo"]
+      energia_gwh: ["generacion", "energia", "gwh"]
+      participacion: ["participacion", "porcentaje", "share"]
+    respaldo: "https://www.cne.cl/estadisticas/energetica/electricidad/"
+
+  pmgd:
+    visualizacion: "http://energiaabierta.cl/visualizaciones/pequenos-medios-de-generacion-en-chile/"
+    ckan_queries:
+      - "PMGD"
+      - "pequenos medios de generacion"
+      - "PMG PMGD distribuida"
+    columnas:
+      nombre: ["nombre", "central", "proyecto"]
+      region: ["region", "región"]
+      comuna: ["comuna"]
+      tecnologia: ["tecnologia", "tecnología", "tipo"]
+      potencia_mw: ["potencia", "potencia_mw", "mw"]
+      estado: ["estado", "situacion"]
+      lat: ["lat", "latitud", "y"]
+      lon: ["lon", "lng", "longitud", "x"]
+    respaldo: "https://www.coordinador.cl/desarrollo/documentos/gestion-de-proyectos/pequenos-medios-generacion-distribuida/reportes-mensuales-pmgd/"
+
+  almacenamiento:
+    visualizacion: "http://energiaabierta.cl/reportes/"
+    ckan_queries:
+      - "almacenamiento BESS"
+      - "sistemas de almacenamiento baterias"
+      - "storage energia"
+    columnas:
+      nombre: ["nombre", "proyecto", "central"]
+      region: ["region", "región"]
+      potencia_mw: ["potencia", "mw"]
+      energia_mwh: ["energia", "mwh", "capacidad"]
+      estado: ["estado", "situacion"]
+    # Complemento: proyectos en evaluación ambiental (SEA) y CEN
+    respaldo: "https://seia.sea.gob.cl/busqueda/buscarProyectoResumen.php"
+
+  demanda:
+    visualizacion: "http://energiaabierta.cl/reportes/"
+    ckan_queries:
+      - "demanda electrica"
+      - "consumo energia electrica sector"
+      - "demanda maxima sistema"
+    columnas:
+      fecha: ["fecha", "periodo", "mes"]
+      region: ["region", "región"]
+      sector: ["sector", "rubro"]
+      demanda_gwh: ["demanda", "consumo", "energia", "gwh"]
+      demanda_maxima_mw: ["maxima", "punta", "mw"]
+    respaldo: "https://www.coordinador.cl/operacion/graficos/operacion-real/demanda-real-del-sistema/"
+
+  reportes_cne:
+    repositorio: "http://energiaabierta.cl/reportes/"
+    tipos:
+      - nombre: "Reporte Mensual Sector Energético"
+        patron: "(?i)reporte\\s+mensual.*sector\\s+energ"
+      - nombre: "Reporte Mensual ERNC"
+        patron: "(?i)reporte\\s+mensual.*ernc"
+      - nombre: "Reporte Financiero del Sector Energético"
+        patron: "(?i)reporte\\s+financiero"
+      - nombre: "Anuario Estadístico de Energía"
+        patron: "(?i)anuario\\s+estad"
+    respaldo: "https://www.cne.cl/estadisticas/energetica/electricidad/reporte-mensual-del-sector-energetico/"
+
+  legislativo:
+    temas:
+      - energia
+      - "mercado electrico"
+      - PMGD
+      - transmision
+      - distribucion
+      - almacenamiento
+      - "hidrogeno verde"
+      - desalinizacion
+      - desalacion
+      - permisologia
+    fuentes:
+      senado:
+        # API pública de tramitación del Senado (devuelve XML)
+        base: "https://tramitacion.senado.cl/wspublico/"
+        proyectos: "https://tramitacion.senado.cl/wspublico/tramitacion.php"
+      camara:
+        # Open Data Cámara de Diputadas y Diputados (XML)
+        base: "https://opendata.camara.cl/camaradiputados/WServices/"
+        proyectos: "https://opendata.camara.cl/camaradiputados/WServices/WSLegislativo.asmx/retornarProyectosLeyXAnno"
+      bcn:
+        base: "https://www.bcn.cl/leychile/"

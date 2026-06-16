@@ -1,0 +1,43 @@
+# Despliegue local/servidor con PostgreSQL persistente + ETL diario.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: energia
+      POSTGRES_PASSWORD: energia
+      POSTGRES_DB: energia
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U energia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dashboard:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://energia:energia@db:5432/energia
+    ports:
+      - "8501:8501"
+    command: >
+      sh -c "python scripts/init_db.py &&
+             streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0"
+
+  # Ejecuta el ETL una vez al arrancar; programar con cron del host o
+  # 'docker compose run --rm etl' diariamente.
+  etl:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://energia:energia@db:5432/energia
+    command: python scripts/run_etl.py
+    restart: "no"
+
+volumes:
+  pgdata:
