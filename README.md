@@ -120,7 +120,11 @@ Ver [`docs/INSTALACION.md`](docs/INSTALACION.md).
 
 - [Instalación](docs/INSTALACION.md) · [Actualización](docs/ACTUALIZACION.md) ·
   [Mantenimiento](docs/MANTENIMIENTO.md) · [Arquitectura](docs/ARQUITECTURA.md) ·
-  [Fuentes de datos](docs/FUENTES_DE_DATOS.md)
+  [Fuentes de datos](docs/FUENTES_DE_DATOS.md) · [Power BI](docs/POWERBI.md)
+
+> **Power BI:** además del dashboard Streamlit, los mismos datos se consumen en
+> Power BI ejecutando `python scripts/export_powerbi.py` (CSV/Excel) o conectando
+> a PostgreSQL. Ver [`docs/POWERBI.md`](docs/POWERBI.md).
 
 ---
 

@@ -38,3 +38,6 @@ env/
 data/*.db
 data/reportes_cne/
 !data/.gitkeep
+
+# Export regenerable para Power BI (lo crea scripts/export_powerbi.py)
+powerbi_export/
