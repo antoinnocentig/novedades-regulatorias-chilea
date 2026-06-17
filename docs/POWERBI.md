@@ -14,6 +14,9 @@ Esto produce, en `powerbi_export/`:
 
 Elige **uno** de los siguientes métodos de conexión.
 
+> **¿Quieres datos en vivo sin ejecutar el ETL?** Conecta Power BI directo a la
+> API de Energía Abierta con Power Query. Ver [`POWERBI_DIRECTO.md`](POWERBI_DIRECTO.md).
+
 ---
 
 ## Método 1 — Excel (el más rápido para empezar)

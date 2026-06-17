@@ -123,8 +123,9 @@ Ver [`docs/INSTALACION.md`](docs/INSTALACION.md).
   [Fuentes de datos](docs/FUENTES_DE_DATOS.md) · [Power BI](docs/POWERBI.md)
 
 > **Power BI:** además del dashboard Streamlit, los mismos datos se consumen en
-> Power BI ejecutando `python scripts/export_powerbi.py` (CSV/Excel) o conectando
-> a PostgreSQL. Ver [`docs/POWERBI.md`](docs/POWERBI.md).
+> Power BI. Para **datos en vivo** conecta Power BI directo a la API de Energía
+> Abierta ([`docs/POWERBI_DIRECTO.md`](docs/POWERBI_DIRECTO.md)); o usa el export
+> del ETL `python scripts/export_powerbi.py` / PostgreSQL ([`docs/POWERBI.md`](docs/POWERBI.md)).
 
 ---
 
