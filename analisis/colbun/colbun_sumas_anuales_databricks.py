@@ -289,3 +289,75 @@ if series:
     display(combinado.reset_index())      # noqa: F821
 else:
     print("No hubo resultados para combinar.")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 5) Diagnóstico — ¿por qué sale negativo?
+# MAGIC
+# MAGIC Un negativo puede venir de **(a)** columna de valor mal detectada, **(b)** un
+# MAGIC saldo que legítimamente es negativo, o **(c)** números en formato chileno
+# MAGIC (`-1.234.567,89`) guardados como texto que el `CAST AS DOUBLE` parsea mal.
+# MAGIC Esta celda revela cuál es el caso. Cambia `IDX` para diagnosticar otra tabla.
+
+# COMMAND ----------
+
+IDX = 0                       # 0 = balance_energia / valorizado
+ANIO_FOCO = 2019              # año a inspeccionar en detalle
+consulta = CONSULTAS[IDX]
+tabla = consulta["tabla"]
+
+sdf_tabla = spark.table(tabla)                                    # noqa: F821
+dtypes = sdf_tabla.dtypes
+col_valor, col_empresa, expr_anio = resolver_columnas(consulta, dtypes)
+
+print(f"Tabla: {tabla}")
+print(f"Detectado -> valor={col_valor!r}  empresa={col_empresa!r}  anio={expr_anio}\n")
+
+# (a) ¿hay varias columnas candidatas a 'valorizado'? ¿de qué tipo es la elegida?
+objetivo = normalizar(consulta["columna_valor"])
+candidatas = [(c, t) for c, t in dtypes if objetivo[:6] in normalizar(c)]
+tipo_valor = dict(dtypes)[col_valor]
+print(f"Columnas que se parecen a «{consulta['columna_valor']}»: {candidatas}")
+print(f"Tipo de la columna elegida ({col_valor!r}): {tipo_valor}")
+print("Todas las columnas:", [c for c, _ in dtypes], "\n")
+
+# (b) confirmar a quién se está filtrando
+empresa_norm = f"translate(upper({q(col_empresa)}), 'ÁÉÍÓÚÜÑ', 'AEIOUUN')"
+print("Valores de empresa que capta el filtro '%COLBUN%':")
+display(spark.sql(                                                # noqa: F821
+    f"SELECT DISTINCT {q(col_empresa)} AS empresa FROM {tabla} "
+    f"WHERE {empresa_norm} LIKE '%{EMPRESA}%' ORDER BY empresa"
+))
+
+# (c) desglose por año: total, filas, min, max, y positivos/negativos por separado
+print("\nDesglose por año (si suma_negativos aporta casi todo el total, el dato "
+      "trae signo; si min es muy raro, revisa el CAST/formato):")
+display(spark.sql(f"""
+    SELECT {expr_anio} AS anio,
+           COUNT(*)                                             AS filas,
+           SUM(CAST({q(col_valor)} AS DOUBLE))                  AS total,
+           SUM(CASE WHEN CAST({q(col_valor)} AS DOUBLE) > 0
+                    THEN CAST({q(col_valor)} AS DOUBLE) END)    AS suma_positivos,
+           SUM(CASE WHEN CAST({q(col_valor)} AS DOUBLE) < 0
+                    THEN CAST({q(col_valor)} AS DOUBLE) END)    AS suma_negativos,
+           MIN(CAST({q(col_valor)} AS DOUBLE))                  AS minimo,
+           MAX(CAST({q(col_valor)} AS DOUBLE))                  AS maximo,
+           SUM(CASE WHEN {q(col_valor)} IS NOT NULL
+                     AND CAST({q(col_valor)} AS DOUBLE) IS NULL
+                    THEN 1 ELSE 0 END)                          AS cast_fallidos
+    FROM {tabla}
+    WHERE {empresa_norm} LIKE '%{EMPRESA}%'
+    GROUP BY {expr_anio}
+    ORDER BY anio
+"""))
+
+# muestra de filas crudas del año en foco (valor original SIN cast)
+print(f"\nFilas crudas de Colbún en {ANIO_FOCO} (valor original, sin CAST):")
+display(spark.sql(                                               # noqa: F821
+    f"SELECT {q(col_empresa)} AS empresa, {expr_anio} AS anio, "
+    f"{q(col_valor)} AS valor_original "
+    f"FROM {tabla} "
+    f"WHERE {empresa_norm} LIKE '%{EMPRESA}%' AND {expr_anio} = {ANIO_FOCO} "
+    f"LIMIT 50"
+))
